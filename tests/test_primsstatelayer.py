@@ -1,9 +1,9 @@
-from usd_prims_display_manager import PrimsStateLayer
+from usd_prims_display_manager import UsdPrimsDisplayManager
 from pxr import Usd, Sdf, UsdGeom
 import unittest
 
 
-class TestCasePrimsStateLayer(unittest.TestCase):
+class TestCaseUsdPrimsDisplayManager(unittest.TestCase):
     def setUp(self):
         # DefineStage
         self.stage = Usd.Stage.CreateInMemory()
@@ -27,12 +27,12 @@ class TestCasePrimsStateLayer(unittest.TestCase):
         self.clr = self.stage.DefinePrim("/root/Cylinder/HIGH", "Cylinder")
         self.clr.GetAttribute("purpose").Set("render")
 
-        self.stateLayerObj = PrimsStateLayer(self.stage)
+        self.stateLayerObj = UsdPrimsDisplayManager(self.stage)
 
-    def test_layer(self):
+    def testLayer(self):
         self.assertTrue(isinstance(self.stateLayerObj.layer(), Sdf.Layer))
 
-    def test_swap_prim_purposes(self):
+    def testSwapPrimPurposes(self):
         primPath = Sdf.Path("/root/Sphere")
         self.stateLayerObj.swapPrimPurposes(primPath)
 
@@ -49,19 +49,19 @@ class TestCasePrimsStateLayer(unittest.TestCase):
         self.assertEqual(self.cp.GetAttribute("purpose").Get(), "default")
         self.assertTrue(self.clr.IsActive())
 
-    def test_set_prim_loaded(self):
+    def testSetPrimLoaded(self):
         assert False
 
-    def test_set_prim_active(self):
+    def testSetPrimActive(self):
         assert False
 
-    def test_set_layer_muted(self):
+    def testSetLayerMuted(self):
         assert False
 
-    def test_save_layer_to_file(self):
+    def testSaveLayerToFile(self):
         assert False
 
-    def test_copy_spec_to_layer(self):
+    def testCopySpecToLayer(self):
 
         destStage = Usd.Stage.CreateInMemory()
         destLayer = Sdf.Layer.CreateAnonymous()
