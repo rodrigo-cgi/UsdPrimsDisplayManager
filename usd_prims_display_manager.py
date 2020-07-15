@@ -83,6 +83,43 @@ class UsdPrimsDisplayManager(object):
             renderPrim.SetActive(False)
             proxyPrim.GetAttribute("purpose").Set("default")
 
+    def setPrimActive(self, primPath, state):
+        """Sets the active state of the prim
+
+        Args:
+            primPath (`Sdf.Path`):
+                The Sdf Path of the prim to change
+            state (bool):
+                True to activate the Prim,
+
+        """
+
+        prim = self._stage.GetPrimAtPath(primPath)
+        with self.editInPrimStateLayer():
+            prim.SetActive(state)
+
+    def removeDisplayOverrides(self, primPath):
+        """Cleans the opinions on the Display's manager layer, restoring prim to underneath layer's state
+
+        Args:
+            primPath (`Sdf.Path`):
+                The path to remove edit
+
+        """
+        with self.editInPrimStateLayer():
+            self._stage.RemovePrim(primPath)
+
+    def setLayerMuted(self, state):
+        """set the Muted state of the layer
+
+        Args:
+            state (bool):
+                True to mute the layer
+
+        """
+
+        self._layer.SetMuted(state)
+
     def setPrimLoaded(self, primPath, state):
         """Either add or remove the prim at the given path from the swapped purpose layer
 
@@ -94,27 +131,6 @@ class UsdPrimsDisplayManager(object):
         # TODO
         prim = self._stage.GetPrimAtPath(primPath)
 
-    def setPrimActive(self, primPath, state):
-        """Either add or remove the prim at the given path from the swapped purpose layer
-
-        Args:
-            primPath (`Sdf.Path`):
-                the path of the prim to have all their children swapped.
-
-        """
-        prim = self._stage.GetPrimAtPath(primPath)
-
-    def setLayerMuted(self, state):
-        """Swaps the muting state of the layer
-
-        Args:
-            state (bool):
-                If layer should be muted or not
-
-        """
-        # TODO
-        self._layer.SetMuted(state)
-
     def saveLayerToFile(self, filePath):
         """writes the layer to a file in disk
 
@@ -122,8 +138,8 @@ class UsdPrimsDisplayManager(object):
             filePath (str):
                 str with a valid filepath
         """
-
-        self._layer
+        outputLayer = Sdf.Layer.CreateNew(filePath)
+        outputLayer.TransferContent(self._layer)
 
     def copySpecToLayer(self, primPath, layer, destPrimPath):
         """Copies the specs of primPath and all children to a prim in another layer

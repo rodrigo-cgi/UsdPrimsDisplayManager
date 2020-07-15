@@ -49,6 +49,18 @@ class TestCaseUsdPrimsDisplayManager(unittest.TestCase):
         self.assertEqual(self.cp.GetAttribute("purpose").Get(), "default")
         self.assertTrue(self.clr.IsActive())
 
+    def testRemoveDisplayOverrides(self):
+        self.testSwapPrimPurposes()
+
+        self.stateLayerObj.stage.ExportToString()
+        self.stateLayerObj.removeDisplayOverrides(Sdf.Path("/root/Sphere"))
+
+        primPath = Sdf.Path("/root/Sphere")
+        self.assertTrue(self.sr.IsActive())
+        self.assertEqual(self.sp.GetAttribute("purpose").Get(), "proxy")
+        self.assertFalse(self.cr.IsActive())
+        self.assertEqual(self.cp.GetAttribute("purpose").Get(), "default")
+
     def testSetPrimLoaded(self):
         assert False
 
