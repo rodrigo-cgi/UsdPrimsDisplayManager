@@ -1,0 +1,23 @@
+#usda 1.0
+(
+    defaultPrim = "root"
+    doc = """Generated from Composed Stage of root layer
+"""
+)
+
+def Xform "root"
+{
+    def Xform "assetCube"
+    {
+        def Cube "HIGH"
+        {
+            uniform token purpose = "render"
+        }
+
+        def Cube "PROXY"
+        {
+            uniform token purpose = "proxy"
+        }
+    }
+}
+
