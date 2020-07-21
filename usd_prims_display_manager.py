@@ -274,7 +274,3 @@ class UsdPrimsDisplayManager(object):
         """
         Sdf.CopySpec(self._layer, primPath, layer, destPrimPath)
 
-
-# TODo:
-# What happens if a parent prim is set to a state and a children is set to another
-# Does this work the same with Activation, Purposes and Display?
