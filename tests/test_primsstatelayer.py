@@ -43,8 +43,8 @@ class TestCaseUsdPrimsDisplayManager(unittest.TestCase):
         self.asset2Render = self.stage.GetPrimAtPath("/root/Asset2/assetCube/HIGH")
         self.asset2Proxy = self.stage.GetPrimAtPath("/root/Asset2/assetCube/PROXY")
 
-        self.stage.SetEditTarget(Usd.EditTarget(self.stage.GetSessionLayer()))
-
+        sessLayer = self.stage.GetSessionLayer()
+        self.stage.SetEditTarget(Usd.EditTarget(sessLayer))
         self.usdPrimDisplayManager.setLayerMuted(False)
 
     def testLayer(self):

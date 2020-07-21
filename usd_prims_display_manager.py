@@ -2,6 +2,26 @@ from pxr import Sdf, Usd, Vt
 from enum import Enum
 
 
+def iteratePrimSpecs(parentPrims):
+    """Utility function to create a generator with all prim specs child to the given prim specs
+
+    To iterate the whole Sdf.Layer you can pass the rootPrimsSpecs to this function
+
+    Args:
+        parentPrims (set[`Sdf.PrimSpec`]):
+            A set of prim specs to iterate
+
+    Yields:
+        `Sdf.PrimSpec`:
+
+    """
+    for parentPrim in parentPrims:
+        for primSpec in parentPrim.nameChildren:
+            for each in iteratePrimSpecs({primSpec, }):
+                yield each
+        yield parentPrim
+
+
 class UsdPrimsDisplayManager(object):
 
     drawModeAttribute = "model:drawMode"
@@ -220,33 +240,24 @@ class UsdPrimsDisplayManager(object):
             if loadablePrim.HasPayload() and not loadablePrim.GetCustomDataByKey("loaded"):
                 initialLoadSet = loadablePrim.IsLoaded()
                 break
-
         self._layer.SetMuted(state)
+
         # Load prims
-        # Todo: Temporary approach. In USD 20+ Sdf.Layer.Traverse should be used instead of tmpLayer /tmpStage
-        tmpStage = Usd.Stage.CreateInMemory()
-        tmpLayer = Sdf.Layer.CreateAnonymous()
-        tmpStage.GetSessionLayer().subLayerPaths.append(tmpLayer.identifier)
-        tmpLayer.TransferContent(self._layer)
-
-        # figures out the default load state of the stage
-        # Used passed as option when opening Stage
-
-        for tmpPrimSpec in tmpStage.TraverseAll():
-            storedLoadState = tmpPrimSpec.GetCustomDataByKey("loaded")
+        for primSpec in iteratePrimSpecs(self._layer.rootPrims.values()):
+            storedLoadState = primSpec.customData.get("loaded")
             if storedLoadState is None:
                 continue
-            prim = self._stage.GetPrimAtPath(tmpPrimSpec.GetPath())
+            prim = self._stage.GetPrimAtPath(primSpec.path)
             if not state:  # Layer not muted
-                if storedLoadState and not tmpPrimSpec.IsLoaded():
+                if storedLoadState and not prim.IsLoaded():
                     prim.Load()
-                if not storedLoadState and tmpPrimSpec.IsLoaded():
+                if not storedLoadState and prim.IsLoaded():
                     prim.Unload()
 
             else:  # Layer muted
-                if initialLoadSet and not tmpPrimSpec.IsLoaded():
+                if initialLoadSet and not prim.IsLoaded():
                     prim.Load()
-                elif not initialLoadSet and tmpPrimSpec.IsLoaded():
+                elif not initialLoadSet and prim.IsLoaded():
                     prim.Unload()
 
     def saveLayerToFile(self, filePath):
@@ -273,4 +284,3 @@ class UsdPrimsDisplayManager(object):
 
         """
         Sdf.CopySpec(self._layer, primPath, layer, destPrimPath)
-
