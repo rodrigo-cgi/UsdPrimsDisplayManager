@@ -2,6 +2,13 @@ from pxr import Sdf, Usd, Vt
 from enum import Enum
 
 
+def iteratePrimChildren(prim):
+    for _prim in prim.GetChildren():
+        for i in iteratePrimChildren(_prim):
+            yield _prim
+    yield prim
+
+ 
 def iteratePrimSpecs(parentPrims):
     """Utility function to create a generator with all prim specs child to the given prim specs
 
